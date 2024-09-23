@@ -10,7 +10,7 @@ function forgotPassword(e) {
   };
   // console.log(userDetails);
 
-  axios.post("http://16.170.204.153:3000/password/forgotPassword", userDetails, {
+  axios.post("http://16.171.28.90:3000/password/forgotPassword", userDetails, {
     headers: {
       'Content-Type': 'application/json'
     }
