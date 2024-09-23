@@ -10,7 +10,7 @@ async function onLogin(e) {
     password: password.value,
   };
   await axios
-    .post("http://16.171.28.90:3000/user/login", loginDetails)
+    .post("http://13.61.34.217:3000/user/login", loginDetails)
     .then((response) => {
       if (response.status === 200) {
         alert(response.data.message);

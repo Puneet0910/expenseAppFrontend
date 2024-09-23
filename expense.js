@@ -10,7 +10,7 @@ const pagination = document.querySelector("#pagination");
 
 const leaderBoard = document.querySelector("#leader-board");
 
-const api = "http://16.171.28.90:3000/expense";
+const api = "http://13.61.34.217:3000/expense";
 
 // Submit Expense Form
 async function onSubmit(e) {
@@ -102,7 +102,7 @@ document.getElementById("rzp-btn1").onclick = async function (e) {
   const token = localStorage.getItem("token");
 
   const response = await axios.get(
-    "http://16.171.28.90:3000/purchase/premiummembership",
+    "http://13.61.34.217:3000/purchase/premiummembership",
     { headers: { Authorization: token } }
   );
 
@@ -111,7 +111,7 @@ document.getElementById("rzp-btn1").onclick = async function (e) {
     order_id: response.data.order.id,
     handler: async function (response) {
       await axios.post(
-        "http://16.171.28.90:3000/purchase/updatetransactionstatus",
+        "http://13.61.34.217:3000/purchase/updatetransactionstatus",
         {
           order_id: options.order_id,
           payment_id: response.razorpay_payment_id,
@@ -141,7 +141,7 @@ document.getElementById("rzp-btn1").onclick = async function (e) {
 // Leaderboard
 leaderBoard.addEventListener("click", async () => {
   const responses = await axios.get(
-    "http://16.171.28.90:3000/premium/showLeaderBoard"
+    "http://13.61.34.217:3000/premium/showLeaderBoard"
   );
 
   var div = document.getElementById("leader-board-list");
@@ -166,7 +166,7 @@ function showError(err) {
 function download() {
   const token = localStorage.getItem("token");
   axios
-    .get("http://16.171.28.90:3000/user/download", {
+    .get("http://13.61.34.217:3000/user/download", {
       headers: { Authorization: token },
     })
     .then((response) => {

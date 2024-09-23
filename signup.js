@@ -12,7 +12,7 @@ async function onSignup(e) {
       password: password.value,
     };
     const response = await axios.post(
-      "http://16.171.28.90:3000/user/signup",
+      "http://13.61.34.217:3000/user/signup",
       signUpDetails
     );
 
