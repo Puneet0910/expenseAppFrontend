@@ -1,7 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const bodyParser = require("body-parser");
-
+const path = require('path');
 const app = express();
 const errController = require("./controllers/error");
 const userRouter = require("./routes/user");
@@ -18,7 +18,7 @@ const Expense = require("./models/expense");
 const User = require("./models/user");
 const Order = require("./models/order");
 const ForgotPassword = require("./models/forgotPassword");
-
+app.use(express.static(path.join(__dirname, 'public')));
 const userAuth = require("./middleware/auth");
 
 app.use(bodyParser.urlencoded({ extended: true }));
