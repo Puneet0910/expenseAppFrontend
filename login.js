@@ -11,7 +11,7 @@ async function onLogin(e) {
   };
 
   try {
-    const response = await axios.post("http://localhost:3000/user/login", loginDetails);
+    const response = await axios.post("http://13.61.34.217:3000/user/login", loginDetails);
 
     if (response.status === 200) {
       alert(response.data.message);

@@ -33,7 +33,7 @@ exports.forgotPassword = async (req, res, next) => {
         sender,
         to: receiver,
         subject: 'Forgot Password',
-        htmlContent: `<p>Hello,</p><p>Click the link below to reset your password:</p><p><a href="http://localhost:3000/password/resetPassword/${id}">Reset password</a></p>`,
+        htmlContent: `<p>Hello,</p><p>Click the link below to reset your password:</p><p><a href="http://13.61.34.217:3000/password/resetPassword/${id}">Reset password</a></p>`,
       };
 
       try {
