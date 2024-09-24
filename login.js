@@ -9,29 +9,45 @@ async function onLogin(e) {
     email: email.value,
     password: password.value,
   };
-  await axios
-    .post("http://13.61.34.217:3000/user/login", loginDetails)
-    .then((response) => {
-      if (response.status === 200) {
-        alert(response.data.message);
 
-        localStorage.setItem("token", response.data.token);
+  try {
+    const response = await axios.post("http://localhost:3000/user/login", loginDetails);
 
-        window.location.href = "./expense.html";
+    if (response.status === 200) {
+      alert(response.data.message);
+      localStorage.setItem("token", response.data.token);
+      window.location.href = "./expense.html";
+    }
+  } catch (err) {
+    // Handle different error status codes
+    if (err.response) {
+      const status = err.response.status;
+      let errorMessage;
+
+      if (status === 400) {
+        errorMessage = "Bad request: Email or password is missing.";
+      } else if (status === 404) {
+        errorMessage = "User not found. Please sign up.";
+      } else if (status === 401) {
+        errorMessage = "Incorrect password. Please try again.";
+      } else if (status === 500) {
+        errorMessage = "Server error. Please try again later.";
       } else {
-        throw new Error("Failed to login");
+        errorMessage = "Login failed. Please try again.";
       }
-    })
-    .catch((err) => {
-      document.body.innerHTML += `<div style="color:red">${err.message}</div>`;
-    });
+
+      // Show error alert
+      alert(errorMessage);
+    } else {
+      // Handle other errors (e.g., network issues)
+      alert("An error occurred. Please try again.");
+    }
+  }
 }
 
 form.addEventListener("submit", onLogin);
 
-const jwt =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c";
-
-  function forgotPassword(e){
-    window.location.href = './forgot.html'
-  }
+// Function for Forgot Password
+function forgotPassword(e) {
+  window.location.href = './forgot.html';
+}

@@ -8,54 +8,78 @@ const S3Services = require("../services/S3services");
 const Items_Per_Page = 5;
 
 exports.getExpenses = async (req, res, next) => {
-  const expenses = await Expense.findAll({ where: { userId: req.user.id } });
-  const userDetails = await User.findByPk(req.user.id);
-
+  const userId = req.user.id; // Get the current user's ID
   const page = +req.query.page || 1;
   let totalItems;
-  Expense.count()
-    .then((total) => {
-      totalItems = total;
-      return Expense.findAll({
-        offset: (page - 1) * Items_Per_Page,
-        limit: Items_Per_Page,
-      });
-    })
-    .then((expenses) => {
-      res.status(200).json({
-        success: true,
-        userDetails,
-        expenses,
-        currentPage: page,
-        hasNextPage: Items_Per_Page * page < totalItems,
-        nextPage: page + 1,
-        hasPreviousPage: page > 1,
-        previosPage: page - 1,
-        lastPage: Math.ceil(totalItems / Items_Per_Page),
-        total: totalItems,
-      });
-    })
-    .catch((err) => {
-      console.log(err);
+
+  try {
+    totalItems = await Expense.count({ where: { userId: userId } }); // Count only the current user's expenses
+
+    const expenses = await Expense.findAll({
+      where: { userId: userId }, // Filter expenses by user ID
+      offset: (page - 1) * Items_Per_Page,
+      limit: Items_Per_Page,
     });
+
+    res.status(200).json({
+      success: true,
+      userDetails: await User.findByPk(userId),
+      expenses,
+      currentPage: page,
+      hasNextPage: Items_Per_Page * page < totalItems,
+      nextPage: page + 1,
+      hasPreviousPage: page > 1,
+      previosPage: page - 1,
+      lastPage: Math.ceil(totalItems / Items_Per_Page),
+      total: totalItems,
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
 };
+
 
 exports.downloadExpense = async (req, res, next) => {
   try {
+    // Fetch expenses and convert to plain objects
     const expenses = await UserServices.getExpenses(req);
+    const plainExpenses = expenses.map(expense => expense.get({ plain: true }));
 
-    const stringifiedExpenses = JSON.stringify(expenses);
+    // Convert plain objects to CSV format
+    const csvData = convertToCSV(plainExpenses);
 
     const userId = req.user.id;
-    const filename = `Expense${userId}/${new Date()}.txt`;
+    const filename = `Expense${userId}/${new Date().toISOString().slice(0, 10)}_expenses.csv`; // Use date format for filename
 
-    const fileUrl = await S3Services.uploadToS3(stringifiedExpenses, filename);
+    const fileUrl = await S3Services.uploadToS3(csvData, filename);
     res.status(200).json({ fileUrl, success: true });
   } catch (err) {
     console.log(err);
     res.status(500).json({ fileUrl: "", success: false });
   }
 };
+
+// Helper function to convert JSON to CSV
+function convertToCSV(jsonData) {
+  const csvRows = [];
+  
+  // Get the headers
+  const headers = Object.keys(jsonData[0]);
+  csvRows.push(headers.join(',')); // Join headers with commas
+  
+  // Format each row
+  for (const row of jsonData) {
+    const values = headers.map(header => {
+      const escaped = ('' + row[header]).replace(/"/g, '\\"'); // Escape double quotes
+      return `"${escaped}"`; // Wrap each value in double quotes
+    });
+    csvRows.push(values.join(',')); // Join values with commas
+  }
+  
+  return csvRows.join('\n'); // Join all rows with new line characters
+}
+
 
 exports.addExpense = async (req, res, next) => {
   const transaction = await sequelize.transaction();
